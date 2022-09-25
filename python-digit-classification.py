@@ -1,7 +1,7 @@
 from sklearn import datasets, svm, metrics
 
 from utils import preprocess_digits, train_dev_test_split, h_param_tuning, data_viz
-
+import numpy as np
 
 train_frac, dev_frac, test_frac = 0.8, 0.1 , 0.1
 assert train_frac + dev_frac + test_frac == 1.
@@ -53,10 +53,10 @@ print(
 )
 
 print(
-    f"Min: 0.9723756906077348\n"
-    f"Max: 0.9972164231036882\n"
-    f"Median: 0.988826815642458156424581\n"
-
+    f"Min: {np.amin([metrics.accuracy_score(y_test, predicted_test),metrics.accuracy_score(y_train, predicted_train),metrics.accuracy_score(y_dev, predicted_dev)])}\n"
+    f"Max: {np.amax([metrics.accuracy_score(y_test, predicted_test),metrics.accuracy_score(y_train, predicted_train),metrics.accuracy_score(y_dev, predicted_dev)])}\n"
+    f"Median: {np.median([metrics.accuracy_score(y_test, predicted_test),metrics.accuracy_score(y_train, predicted_train),metrics.accuracy_score(y_dev, predicted_dev)])}\n"
+    f"Mean: {np.mean([metrics.accuracy_score(y_test, predicted_test),metrics.accuracy_score(y_train, predicted_train),metrics.accuracy_score(y_dev, predicted_dev)])}\n"
 )
 
 print("Best hyperparameters were:")
