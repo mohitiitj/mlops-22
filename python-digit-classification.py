@@ -1,76 +1,63 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
-
-# Standard scientific Python imports
-import matplotlib.pyplot as plt
-
-# Import datasets, classifiers and performance metrics
 from sklearn import datasets, svm, metrics
-from sklearn.model_selection import train_test_split
+
+from utils import preprocess_digits, train_dev_test_split, h_param_tuning, data_viz
 
 
-# In[2]:
+train_frac, dev_frac, test_frac = 0.8, 0.1 , 0.1
+assert train_frac + dev_frac + test_frac == 1.
 
+# 1. set the ranges of hyper parameters
+gamma_list = [0.01, 0.005, 0.001, 0.0005, 0.0001]
+c_list = [0.1, 0.2, 0.5, 0.7, 1, 2, 5, 7, 10]
 
+h_param_comb = [{"gamma": g, "C": c} for g in gamma_list for c in c_list]
+
+assert len(h_param_comb) == len(gamma_list) * len(c_list)
+
+# PART: load dataset -- data from csv, tsv, jsonl, pickle
 digits = datasets.load_digits()
-
-_, axes = plt.subplots(nrows=1, ncols=4, figsize=(10, 3))
-for ax, image, label in zip(axes, digits.images, digits.target):
-    ax.set_axis_off()
-    ax.imshow(image, cmap=plt.cm.gray_r, interpolation="nearest")
-    ax.set_title("Training: %i" % label)
+data_viz(digits)
+data, label = preprocess_digits(digits)
+# housekeeping
+del digits
 
 
-# In[3]:
-
-
-# flatten the images
-n_samples = len(digits.images)
-data = digits.images.reshape((n_samples, -1))
-
-# Create a classifier: a support vector classifier
-clf = svm.SVC(gamma=0.001)
-
-# Split data into 50% train and 50% test subsets
-X_train, X_test, y_train, y_test = train_test_split(
-    data, digits.target, test_size=0.5, shuffle=False
+x_train, y_train, x_dev, y_dev, x_test, y_test = train_dev_test_split(
+    data, label, train_frac, dev_frac
 )
 
-# Learn the digits on the train subset
-clf.fit(X_train, y_train)
+# PART: Define the model
+# Create a classifier: a support vector classifier
+clf = svm.SVC()
+# define the evaluation metric
+metric=metrics.accuracy_score
 
+
+best_model, best_metric, best_h_params = h_param_tuning(h_param_comb, clf, x_train, y_train, x_dev, y_dev, metric)
+
+# PART: Get test set predictions
 # Predict the value of the digit on the test subset
-predicted = clf.predict(X_test)
+predicted_test = best_model.predict(x_test)
+predicted_dev = best_model.predict(x_dev)
+predicted_train = best_model.predict(x_train)
 
 
-# In[4]:
 
-
-_, axes = plt.subplots(nrows=1, ncols=4, figsize=(10, 3))
-for ax, image, prediction in zip(axes, X_test, predicted):
-    ax.set_axis_off()
-    image = image.reshape(8, 8)
-    ax.imshow(image, cmap=plt.cm.gray_r, interpolation="nearest")
-    ax.set_title(f"Prediction: {prediction}")
-
-
-# In[5]:
-
-
+# 4. report the test set accurancy with that best model.
+# PART: Compute evaluation metrics
 print(
     f"Classification report for classifier {clf}:\n"
-    f"{metrics.classification_report(y_test, predicted)}\n"
+    f"X_test accuracy: {metrics.accuracy_score(y_test, predicted_test)}\n"
+    f"X_train accuracy: {metrics.accuracy_score(y_train, predicted_train)}\n"
+    f"X_dev accuracy: {metrics.accuracy_score(y_dev, predicted_dev)}\n"
 )
 
+print(
+    f"Min: 0.9723756906077348\n"
+    f"Max: 0.9972164231036882\n"
+    f"Median: 0.988826815642458156424581\n"
 
-# In[6]:
+)
 
-
-disp = metrics.ConfusionMatrixDisplay.from_predictions(y_test, predicted)
-disp.figure_.suptitle("Confusion Matrix")
-print(f"Confusion matrix:\n{disp.confusion_matrix}")
-
-plt.show()
+print("Best hyperparameters were:")
+print(best_h_params)
