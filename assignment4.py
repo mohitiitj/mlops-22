@@ -1,18 +1,3 @@
-## Ignore warnings
-
-import warnings
-warnings.filterwarnings("ignore")
-
-def fxn():
-    warnings.warn("deprecated", DeprecationWarning)
-
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    fxn()
-
-
-## Part 1: Import the Libraries
-
 import sys
 import numpy as np
 import pandas as pd
@@ -58,72 +43,46 @@ best_acc_dt = -1.0
 best_model_dt = None
 best_h_params_dt = dict()
 
-## Train, Test, Val set split
-
 for i in range(5):
     n_samples = len(digits.images)
     data = digits.images.reshape((n_samples, -1))
     X_train, X_val, y_train, y_val = train_test_split(data, digits.target, test_size = val_frac[i], shuffle = True)
     X_train, X_test, y_train, y_test = train_test_split(X_train, y_train, test_size = test_frac[i], shuffle = True)
     
-    # For Support Vector Machines (SVM)
     
     for g in gamma_list:
         for c in c_list:            
             
-            ## Define the model
-            ## Create a classifier: a Support Vector classifier
-            
             clf = svm.SVC(gamma = g, C = c, random_state = 42)
-
-            ## Train the model
-            ## Learn the digits on the train subset
             
             clf.fit(X_train, y_train)
 
-            ## Get the prediction of validation set
             
             predicted = clf.predict(X_val)
             cur_acc = metrics.accuracy_score(y_pred = predicted, y_true = y_val)    
-                
-            ## Identify the combination-of-hyper-parameter for which validation set accuracy is the highest. 
-                
+                                
             if (cur_acc > best_acc_svc):
                 best_acc_svc = cur_acc
                 best_model_svc = clf
                 best_h_params_svc[i] = {"gamma":g, "C": c}
 
-    
-    # For Decision Tree Clssifier    
-    
+        
     for d in max_depth:
         for l in min_samples_leaf:
             for c in criterion:
-            
-                ## Define the model
-                ## Create a classifier: a Decision Tree classifier
-                
+
                 clf = DecisionTreeClassifier(max_depth = d, min_samples_leaf = l, criterion = c, random_state = 42)
 
-                ## Train the model
-                ## Learn the digits on the train subset
-                
                 clf.fit(X_train, y_train)
 
-                ## Get the prediction of validation set
-                
                 predicted = clf.predict(X_val)
                 cur_acc = metrics.accuracy_score(y_pred = predicted, y_true = y_val)
-                
-                ## Identify the combination-of-hyper-parameter for which validation set accuracy is the highest
-                
                 if (cur_acc > best_acc_dt):
                     best_acc_dt = cur_acc
                     best_model_dt = clf
                     best_h_params_dt[i] = {"max_depth":d, "min_samples_leaf": l, "criterion": c}
 
     
-    ## Get the test set prediction on best params i.e. using best model (SVM model) and calculate the accuracy of test set using best model
 
     pred_svc = best_model_svc.predict(X_test)
     acc = metrics.accuracy_score(y_pred = pred_svc, y_true = y_test)
