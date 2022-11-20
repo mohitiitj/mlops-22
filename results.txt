@@ -1,0 +1,21 @@
+test accuracy: 0.9888268156424581
+test macro-f1: 0.9868050169444154
+model saved at ./models/svm_gamma=0.001_C=0.2.joblib
+test accuracy: 0.9832402234636871
+test macro-f1: 0.9868050169444154
+model saved at ./models/svm_gamma=0.001_C=0.5.joblib
+test accuracy: 0.9888268156424581
+test macro-f1: 0.9876623376623377
+model saved at ./models/svm_gamma=0.001_C=0.7.joblib
+test accuracy: 0.9888268156424581
+test macro-f1: 0.9867314522071933
+model saved at ./models/svm_gamma=0.001_C=1.joblib
+test accuracy: 0.9776536312849162
+test macro-f1: 0.9869409869409868
+model saved at ./models/svm_gamma=0.001_C=2.joblib
+test accuracy: 0.9776536312849162
+test macro-f1: 0.9771650221650223
+model saved at ./models/svm_gamma=0.0005_C=0.7.joblib
+test accuracy: 1
+test macro-f1: 0.9987546786577765
+model saved at ./models/svm_gamma=0.0005_C=2.joblib
